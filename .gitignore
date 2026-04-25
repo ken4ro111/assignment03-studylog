@@ -24,6 +24,7 @@ dist-ssr
 *.sw?
 .codex
 .env
+supabase/
 
 # Firebase
 .firebase/
