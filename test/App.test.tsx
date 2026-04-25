@@ -7,10 +7,7 @@ describe('App', () => {
     render(<App />)
 
     expect(
-      screen.getByRole('heading', { name: 'Get started' })
-    ).toBeInTheDocument()
-    expect(
-      screen.getByRole('button', { name: /count is 0/i })
+      screen.getByRole('heading', { name: '学習記録一覧' })
     ).toBeInTheDocument()
   })
 })
