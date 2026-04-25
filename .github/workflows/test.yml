@@ -24,4 +24,4 @@ jobs:
         run: npm ci
 
       - name: Run tests
-        run: npm test -- --runInBand
+        run: npm test --threads=false
