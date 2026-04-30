@@ -1,26 +1,17 @@
-import { memo, useEffect, useState } from 'react'
+import { memo, useEffect } from 'react'
 import { TableComponent } from '../atom/TableComponent'
-import type { StudyRecord } from '../../domain/studyRecord'
-import { getAllStudyRecords } from '../../utils/supabaseFunction'
 import { PrimaryButton } from '../atom/button/PrimaryButton'
-import { Container } from '@chakra-ui/react'
+import { Container, useDisclosure } from '@chakra-ui/react'
+import { useAllStudyRecord } from '../../hooks/useAllStudyRecord'
+import { CreateModal } from '../organisms/studyRecord/CreateModal'
 
 export const StudyRecords = memo(() => {
-  const [studyRecords, setStudyRecords] = useState<StudyRecord[]>([])
-  const [loading, setLoading] = useState(false)
+  const { isOpen, onOpen, onClose } = useDisclosure()
+  const { fetchRecords, loading, studyRecords } = useAllStudyRecord()
 
   useEffect(() => {
-    setLoading(true)
-
-    const fetchRecords = async () => {
-      const records = await getAllStudyRecords()
-
-      setStudyRecords(records)
-    }
-
+    // 学習記録一覧を取得
     fetchRecords()
-
-    setLoading(false)
   }, [])
 
   return (
@@ -39,8 +30,9 @@ export const StudyRecords = memo(() => {
         )}
       </Container>
       <Container m={4}>
-        <PrimaryButton onClick={() => alert()}>新規作成</PrimaryButton>
+        <PrimaryButton onClick={() => onOpen()}>新規作成</PrimaryButton>
       </Container>
+      <CreateModal isOpen={isOpen} onClose={onClose} onCreated={fetchRecords} />
     </>
   )
 })

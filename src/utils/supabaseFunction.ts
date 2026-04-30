@@ -17,3 +17,16 @@ export const getAllStudyRecords = async (): Promise<StudyRecord[]> => {
 
   return studyRecords
 }
+
+type CreateData = {
+  title: string
+  time: number
+}
+
+export const createStudyRecord = async (data: CreateData) => {
+  const { title, time } = data
+
+  const { error } = await supabase.from('study-record').insert({ title, time })
+
+  if (error) throw new Error(error.message)
+}
