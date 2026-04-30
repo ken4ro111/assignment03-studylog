@@ -3,23 +3,19 @@ import { createStudyRecord } from '../utils/supabaseFunction'
 
 type Props = {
   title: string
-  time: string
+  time: number
 }
 
-export const useCreateStudyRecord = (props: Props) => {
-  const { title, time } = props
-  const timeNumber = Number(time)
+export const useCreateStudyRecord = () => {
   const [loading, setLoading] = useState(false)
 
-  const onClickAdd = async () => {
-    if (title === '' || Number.isNaN(timeNumber) || timeNumber <= 0) {
-      return false
-    }
+  const onClickAdd = async (props: Props) => {
+    const { title, time } = props
 
     setLoading(true)
 
     try {
-      await createStudyRecord({ title, time: timeNumber })
+      await createStudyRecord({ title, time })
 
       return true
     } catch (e) {
