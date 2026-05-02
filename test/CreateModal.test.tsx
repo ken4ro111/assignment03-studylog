@@ -65,10 +65,6 @@ describe('CreateModal', () => {
     })
     expect(mockOnCreated).toHaveBeenCalledTimes(1)
     expect(mockOnClose).toHaveBeenCalledTimes(1)
-    expect(mockShowMessage).toHaveBeenCalledWith({
-      title: '登録に成功しました',
-      status: 'success',
-    })
   })
 
   it('学習内容がないときに登録するとエラーが出る', async () => {

@@ -12,24 +12,32 @@ import {
   ModalOverlay,
   Stack,
 } from '@chakra-ui/react'
-import { PrimaryButton } from '../../atom/button/PrimaryButton'
-import { useCreateStudyRecord } from '../../../hooks/useCreateStudyRecord'
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
+import { StudyRecord } from '../../../domain/studyRecord'
+import { useUpdateStudyRecord } from '../../../hooks/useUpdateStudyRecord'
+import { PrimaryButton } from '../../atom/button/PrimaryButton'
 
 type Props = {
   isOpen: boolean
   onClose: () => void
-  onCreated: () => Promise<void>
+  onUpdated: () => Promise<void>
+  record: StudyRecord | null
 }
 
 type StudyFormData = {
   title: string
-  time: number
+  time: number | undefined
 }
 
-export const CreateModal = (props: Props) => {
-  const { isOpen, onClose, onCreated } = props
-  const { onClickAdd, loading } = useCreateStudyRecord()
+const emptyValues: StudyFormData = {
+  title: '',
+  time: undefined,
+}
+
+export const UpdateModal = (props: Props) => {
+  const { isOpen, onClose, onUpdated, record } = props
+  const { onClickUpdate, loading } = useUpdateStudyRecord()
 
   const {
     register,
@@ -37,29 +45,48 @@ export const CreateModal = (props: Props) => {
     reset,
     formState: { errors, isSubmitted },
   } = useForm<StudyFormData>({
-    defaultValues: {
-      title: '',
-      time: undefined,
-    },
+    defaultValues: emptyValues,
   })
 
-  const handleCreate = async (data: StudyFormData) => {
-    const isCreated = await onClickAdd(data)
-    if (!isCreated) {
+  useEffect(() => {
+    if (isOpen && record) {
+      reset({
+        title: record.title,
+        time: record.time,
+      })
+
       return
     }
 
-    // fetchRecordsを呼ぶ
-    await onCreated()
-    // モーダルを閉じる
+    if (!isOpen) {
+      reset(emptyValues)
+    }
+  }, [isOpen, record, reset])
+
+  const handleUpdate = async (data: StudyFormData) => {
+    if (!record || data.time === undefined) {
+      return
+    }
+
+    const isUpdated = await onClickUpdate({
+      id: record.id,
+      data: {
+        title: data.title,
+        time: data.time,
+      },
+    })
+    if (!isUpdated) {
+      return
+    }
+
+    await onUpdated()
     onClose()
-    // フォームの初期化
-    reset()
+    reset(emptyValues)
   }
 
   const onCancel = () => {
     onClose()
-    reset()
+    reset(emptyValues)
   }
 
   return (
@@ -71,8 +98,8 @@ export const CreateModal = (props: Props) => {
     >
       <ModalOverlay />
       <ModalContent pb={2}>
-        <ModalHeader>新規登録</ModalHeader>
-        <form onSubmit={handleSubmit(handleCreate)}>
+        <ModalHeader>更新</ModalHeader>
+        <form onSubmit={handleSubmit(handleUpdate)}>
           <ModalBody mx={4}>
             <Stack spacing={4}>
               <FormControl isInvalid={isSubmitted && !!errors.title}>
@@ -110,7 +137,7 @@ export const CreateModal = (props: Props) => {
               キャンセル
             </Button>
             <PrimaryButton type="submit" loading={loading}>
-              登録
+              更新
             </PrimaryButton>
           </ModalFooter>
         </form>

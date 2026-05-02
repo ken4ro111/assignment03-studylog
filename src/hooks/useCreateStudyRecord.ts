@@ -19,6 +19,9 @@ export const useCreateStudyRecord = () => {
     try {
       await createStudyRecord({ title, time })
 
+      // 成功メッセージを表示
+      showMessage({ title: '登録に成功しました', status: 'success' })
+
       return true
     } catch (e) {
       // 失敗メッセージを表示

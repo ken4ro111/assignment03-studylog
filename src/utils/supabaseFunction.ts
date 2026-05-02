@@ -18,15 +18,26 @@ export const getAllStudyRecords = async (): Promise<StudyRecord[]> => {
   return studyRecords
 }
 
-type CreateData = {
+type Data = {
   title: string
   time: number
 }
 
-export const createStudyRecord = async (data: CreateData) => {
+export const createStudyRecord = async (data: Data) => {
   const { title, time } = data
 
   const { error } = await supabase.from('study-record').insert({ title, time })
+
+  if (error) throw new Error(error.message)
+}
+
+export const updateStudyRecord = async (id: number, data: Data) => {
+  const { title, time } = data
+
+  const { error } = await supabase
+    .from('study-record')
+    .update({ title, time })
+    .eq('id', id)
 
   if (error) throw new Error(error.message)
 }

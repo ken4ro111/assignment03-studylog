@@ -14,6 +14,7 @@ import { useAllStudyRecord } from '../src/hooks/useAllStudyRecord'
 import { useCreateStudyRecord } from '../src/hooks/useCreateStudyRecord'
 import { useDeleteStudyRecord } from '../src/hooks/useDeleteStudyRecord'
 import { useMessage } from '../src/hooks/useMessage'
+import { useUpdateStudyRecord } from '../src/hooks/useUpdateStudyRecord'
 import { StudyRecords } from '../src/components/pages/StudyRecords'
 
 vi.mock('../src/hooks/useAllStudyRecord', () => ({
@@ -28,6 +29,10 @@ vi.mock('../src/hooks/useDeleteStudyRecord', () => ({
   useDeleteStudyRecord: vi.fn(),
 }))
 
+vi.mock('../src/hooks/useUpdateStudyRecord', () => ({
+  useUpdateStudyRecord: vi.fn(),
+}))
+
 vi.mock('../src/hooks/useMessage', () => ({
   useMessage: vi.fn(),
 }))
@@ -35,6 +40,7 @@ vi.mock('../src/hooks/useMessage', () => ({
 const mockFetchRecords = vi.fn()
 const mockOnClickAdd = vi.fn()
 const mockOnClickDelete = vi.fn()
+const mockOnClickUpdate = vi.fn()
 const mockShowMessage = vi.fn()
 
 const studyRecords = [
@@ -60,6 +66,7 @@ describe('StudyRecords', () => {
     mockFetchRecords.mockResolvedValue(undefined)
     mockOnClickAdd.mockResolvedValue(true)
     mockOnClickDelete.mockResolvedValue(true)
+    mockOnClickUpdate.mockResolvedValue(true)
 
     vi.mocked(useAllStudyRecord).mockReturnValue({
       fetchRecords: mockFetchRecords,
@@ -73,6 +80,10 @@ describe('StudyRecords', () => {
     vi.mocked(useDeleteStudyRecord).mockReturnValue({
       onClickDelete: mockOnClickDelete,
       deleteLoading: false,
+    })
+    vi.mocked(useUpdateStudyRecord).mockReturnValue({
+      onClickUpdate: mockOnClickUpdate,
+      loading: false,
     })
     vi.mocked(useMessage).mockReturnValue({
       showMessage: mockShowMessage,
@@ -117,6 +128,18 @@ describe('StudyRecords', () => {
     const dialog = await screen.findByRole('dialog')
 
     expect(within(dialog).getByText('新規登録')).toBeInTheDocument()
+  })
+
+  it('更新モーダルを開くと更新対象の値が初期表示される', async () => {
+    renderStudyRecords()
+
+    fireEvent.click(screen.getAllByRole('button', { name: '更新' })[0])
+
+    const dialog = await screen.findByRole('dialog')
+
+    expect(within(dialog).getByRole('button', { name: '更新' })).toBeInTheDocument()
+    expect(within(dialog).getByDisplayValue('React')).toBeInTheDocument()
+    expect(within(dialog).getByDisplayValue('60')).toBeInTheDocument()
   })
 
   it('学習記録を削除できる', async () => {

@@ -1,4 +1,4 @@
-import { memo, useEffect } from 'react'
+import { memo, useEffect, useState } from 'react'
 import { TableComponent } from '../atom/TableComponent'
 import { PrimaryButton } from '../atom/button/PrimaryButton'
 import { Container, useDisclosure } from '@chakra-ui/react'
@@ -6,17 +6,45 @@ import { useAllStudyRecord } from '../../hooks/useAllStudyRecord'
 import { CreateModal } from '../organisms/studyRecord/CreateModal'
 import { useDeleteStudyRecord } from '../../hooks/useDeleteStudyRecord'
 import { useMessage } from '../../hooks/useMessage'
+import { UpdateModal } from '../organisms/studyRecord/UpdateModal'
+import { StudyRecord } from '../../domain/studyRecord'
 
 export const StudyRecords = memo(() => {
-  const { isOpen, onOpen, onClose } = useDisclosure()
+  const {
+    isOpen: isCreateOpen,
+    onOpen: onCreateOpen,
+    onClose: onCreateClose,
+  } = useDisclosure()
+  const {
+    isOpen: isUpdateOpen,
+    onOpen: onUpdateOpen,
+    onClose: onUpdateClose,
+  } = useDisclosure()
   const { fetchRecords, loading, studyRecords } = useAllStudyRecord()
   const { onClickDelete, deleteLoading } = useDeleteStudyRecord()
   const { showMessage } = useMessage()
+  const [selectedRecord, setSelectedRecord] = useState<StudyRecord | null>(null)
 
   useEffect(() => {
     // 学習記録一覧を取得
     fetchRecords()
   }, [fetchRecords])
+
+  const handleOpenUpdate = (id: number) => {
+    const targetRecord = studyRecords.find((record) => record.id === id)
+
+    if (!targetRecord) {
+      return
+    }
+
+    setSelectedRecord(targetRecord)
+    onUpdateOpen()
+  }
+
+  const handleCloseUpdate = () => {
+    onUpdateClose()
+    setSelectedRecord(null)
+  }
 
   const handleDelete = async (id: number) => {
     const isCreated = await onClickDelete(id)
@@ -42,9 +70,7 @@ export const StudyRecords = memo(() => {
               { header: '学習記録', accessor: 'title' },
               { header: '学習時間', accessor: 'time' },
             ]}
-            onClickUpdate={() => {
-              alert('更新')
-            }}
+            onClickUpdate={handleOpenUpdate}
             updateLoading={false}
             onClickDelete={handleDelete}
             deleteLoading={deleteLoading}
@@ -52,9 +78,19 @@ export const StudyRecords = memo(() => {
         )}
       </Container>
       <Container m={4}>
-        <PrimaryButton onClick={() => onOpen()}>新規登録</PrimaryButton>
+        <PrimaryButton onClick={() => onCreateOpen()}>新規登録</PrimaryButton>
       </Container>
-      <CreateModal isOpen={isOpen} onClose={onClose} onCreated={fetchRecords} />
+      <CreateModal
+        isOpen={isCreateOpen}
+        onClose={onCreateClose}
+        onCreated={fetchRecords}
+      />
+      <UpdateModal
+        isOpen={isUpdateOpen}
+        onClose={handleCloseUpdate}
+        onUpdated={fetchRecords}
+        record={selectedRecord}
+      />
     </>
   )
 })
