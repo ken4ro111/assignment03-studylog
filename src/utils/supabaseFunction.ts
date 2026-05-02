@@ -30,3 +30,9 @@ export const createStudyRecord = async (data: CreateData) => {
 
   if (error) throw new Error(error.message)
 }
+
+export const deleteStudyRecord = async (id: number) => {
+  const { error } = await supabase.from('study-record').delete().eq('id', id)
+
+  if (error) throw new Error(error.message)
+}

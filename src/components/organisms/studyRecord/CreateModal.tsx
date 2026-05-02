@@ -15,6 +15,7 @@ import {
 import { PrimaryButton } from '../../atom/button/PrimaryButton'
 import { useCreateStudyRecord } from '../../../hooks/useCreateStudyRecord'
 import { useForm } from 'react-hook-form'
+import { useMessage } from '../../../hooks/useMessage'
 
 type Props = {
   isOpen: boolean
@@ -30,6 +31,7 @@ type StudyFormData = {
 export const CreateModal = (props: Props) => {
   const { isOpen, onClose, onCreated } = props
   const { onClickAdd, loading } = useCreateStudyRecord()
+  const { showMessage } = useMessage()
 
   const {
     register,
@@ -55,6 +57,8 @@ export const CreateModal = (props: Props) => {
     onClose()
     // フォームの初期化
     reset()
+    // 成功メッセージを表示
+    showMessage({ title: '登録に成功しました', status: 'success' })
   }
 
   const onCancel = () => {

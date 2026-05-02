@@ -1,4 +1,6 @@
 import {
+  Button,
+  HStack,
   Table,
   TableContainer,
   Tbody,
@@ -17,12 +19,23 @@ type Column<T> = {
 type Props<T extends { id: string | number }> = {
   data: T[]
   columns: Column<T>[]
+  onClickUpdate?: (id: T['id']) => void
+  onClickDelete?: (id: T['id']) => void
+  updateLoading?: boolean
+  deleteLoading?: boolean
 }
 
 export const TableComponent = <T extends { id: string | number }>(
   props: Props<T>
 ) => {
-  const { data, columns } = props
+  const {
+    data,
+    columns,
+    onClickUpdate,
+    onClickDelete,
+    updateLoading = false,
+    deleteLoading = false,
+  } = props
 
   return (
     <TableContainer>
@@ -34,6 +47,7 @@ export const TableComponent = <T extends { id: string | number }>(
                 {col.header}
               </Th>
             ))}
+            {(onClickUpdate || onClickDelete) && <Th />}
           </Tr>
         </Thead>
         <Tbody>
@@ -44,6 +58,34 @@ export const TableComponent = <T extends { id: string | number }>(
                   {String(row[col.accessor])}
                 </Td>
               ))}
+              {(onClickUpdate || onClickDelete) && (
+                <Td>
+                  <HStack justify="flex-end">
+                    {onClickUpdate && (
+                      <Button
+                        size="sm"
+                        colorScheme="teal"
+                        variant="outline"
+                        isLoading={updateLoading}
+                        onClick={() => onClickUpdate(row.id)}
+                      >
+                        更新
+                      </Button>
+                    )}
+                    {onClickDelete && (
+                      <Button
+                        size="sm"
+                        colorScheme="red"
+                        variant="outline"
+                        isLoading={deleteLoading}
+                        onClick={() => onClickDelete(row.id)}
+                      >
+                        削除
+                      </Button>
+                    )}
+                  </HStack>
+                </Td>
+              )}
             </Tr>
           ))}
         </Tbody>
