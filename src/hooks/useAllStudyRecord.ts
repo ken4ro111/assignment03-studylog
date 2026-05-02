@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import type { StudyRecord } from '../domain/studyRecord'
 import { getAllStudyRecords } from '../utils/supabaseFunction'
 
@@ -6,7 +6,7 @@ export const useAllStudyRecord = () => {
   const [studyRecords, setStudyRecords] = useState<StudyRecord[]>([])
   const [loading, setLoading] = useState(false)
 
-  const fetchRecords = async () => {
+  const fetchRecords = useCallback(async () => {
     setLoading(true)
 
     try {
@@ -21,7 +21,7 @@ export const useAllStudyRecord = () => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   return { fetchRecords, loading, studyRecords }
 }

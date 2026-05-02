@@ -75,7 +75,7 @@ export const CreateModal = (props: Props) => {
     >
       <ModalOverlay />
       <ModalContent pb={2}>
-        <ModalHeader>登録画面</ModalHeader>
+        <ModalHeader>新規登録</ModalHeader>
         <form onSubmit={handleSubmit(handleCreate)}>
           <ModalBody mx={4}>
             <Stack spacing={4}>
@@ -93,12 +93,13 @@ export const CreateModal = (props: Props) => {
               <FormControl isInvalid={!!errors.time}>
                 <FormLabel>学習時間</FormLabel>
                 <Input
+                  type="number"
                   {...register('time', {
                     required: '学習時間の入力は必須です',
                     valueAsNumber: true,
                     min: {
-                      value: 1,
-                      message: '1以上を入力してください',
+                      value: 0,
+                      message: '0以上を入力してください',
                     },
                   })}
                 />

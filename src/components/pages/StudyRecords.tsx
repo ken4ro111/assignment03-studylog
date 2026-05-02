@@ -16,7 +16,7 @@ export const StudyRecords = memo(() => {
   useEffect(() => {
     // 学習記録一覧を取得
     fetchRecords()
-  }, [])
+  }, [fetchRecords])
 
   const handleDelete = async (id: number) => {
     const isCreated = await onClickDelete(id)
@@ -52,7 +52,7 @@ export const StudyRecords = memo(() => {
         )}
       </Container>
       <Container m={4}>
-        <PrimaryButton onClick={() => onOpen()}>新規作成</PrimaryButton>
+        <PrimaryButton onClick={() => onOpen()}>新規登録</PrimaryButton>
       </Container>
       <CreateModal isOpen={isOpen} onClose={onClose} onCreated={fetchRecords} />
     </>
