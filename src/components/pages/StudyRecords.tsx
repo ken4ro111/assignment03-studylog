@@ -3,24 +3,18 @@ import { TableComponent } from '../atom/TableComponent'
 import { PrimaryButton } from '../atom/button/PrimaryButton'
 import { Container, useDisclosure } from '@chakra-ui/react'
 import { useAllStudyRecord } from '../../hooks/useAllStudyRecord'
-import { CreateModal } from '../organisms/studyRecord/CreateModal'
 import { useDeleteStudyRecord } from '../../hooks/useDeleteStudyRecord'
 import { useMessage } from '../../hooks/useMessage'
-import { UpdateModal } from '../organisms/studyRecord/UpdateModal'
 import { StudyRecord } from '../../domain/studyRecord'
+import { useCreateStudyRecord } from '../../hooks/useCreateStudyRecord'
+import { useUpdateStudyRecord } from '../../hooks/useUpdateStudyRecord'
+import { StudyRecordModal } from '../organisms/studyRecord/StudyRecordModal'
 
 export const StudyRecords = memo(() => {
-  const {
-    isOpen: isCreateOpen,
-    onOpen: onCreateOpen,
-    onClose: onCreateClose,
-  } = useDisclosure()
-  const {
-    isOpen: isUpdateOpen,
-    onOpen: onUpdateOpen,
-    onClose: onUpdateClose,
-  } = useDisclosure()
+  const { isOpen, onOpen, onClose } = useDisclosure()
   const { fetchRecords, loading, studyRecords } = useAllStudyRecord()
+  const { onClickAdd, loading: createLoading } = useCreateStudyRecord()
+  const { onClickUpdate, loading: updateLoading } = useUpdateStudyRecord()
   const { onClickDelete, deleteLoading } = useDeleteStudyRecord()
   const { showMessage } = useMessage()
   const [selectedRecord, setSelectedRecord] = useState<StudyRecord | null>(null)
@@ -38,12 +32,28 @@ export const StudyRecords = memo(() => {
     }
 
     setSelectedRecord(targetRecord)
-    onUpdateOpen()
+    onOpen()
   }
 
-  const handleCloseUpdate = () => {
-    onUpdateClose()
+  const handleOpenCreate = () => {
     setSelectedRecord(null)
+    onOpen()
+  }
+
+  const handleCloseModal = () => {
+    onClose()
+    setSelectedRecord(null)
+  }
+
+  const handleSubmitRecord = async (data: { title: string; time: number }) => {
+    if (selectedRecord) {
+      return onClickUpdate({
+        id: selectedRecord.id,
+        data,
+      })
+    }
+
+    return onClickAdd(data)
   }
 
   const handleDelete = async (id: number) => {
@@ -78,18 +88,24 @@ export const StudyRecords = memo(() => {
         )}
       </Container>
       <Container m={4}>
-        <PrimaryButton onClick={() => onCreateOpen()}>新規登録</PrimaryButton>
+        <PrimaryButton onClick={handleOpenCreate}>新規登録</PrimaryButton>
       </Container>
-      <CreateModal
-        isOpen={isCreateOpen}
-        onClose={onCreateClose}
-        onCreated={fetchRecords}
-      />
-      <UpdateModal
-        isOpen={isUpdateOpen}
-        onClose={handleCloseUpdate}
-        onUpdated={fetchRecords}
-        record={selectedRecord}
+      <StudyRecordModal
+        isOpen={isOpen}
+        onClose={handleCloseModal}
+        onSubmit={handleSubmitRecord}
+        onCompleted={fetchRecords}
+        modalTitle={selectedRecord ? '更新' : '新規登録'}
+        submitLabel={selectedRecord ? '更新' : '登録'}
+        loading={selectedRecord ? updateLoading : createLoading}
+        defaultValues={
+          selectedRecord
+            ? {
+                title: selectedRecord.title,
+                time: selectedRecord.time,
+              }
+            : undefined
+        }
       />
     </>
   )
